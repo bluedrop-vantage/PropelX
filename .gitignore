@@ -1,0 +1,21 @@
+node_modules
+dist
+build
+coverage
+.turbo
+.cache
+.vite
+.DS_Store
+*.log
+
+# Secrets — .env contains the Together.ai key and must NEVER be committed
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# IDE
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

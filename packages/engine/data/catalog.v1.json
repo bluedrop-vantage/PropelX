@@ -1,0 +1,159 @@
+{
+  "catalog_version": "1.0",
+  "modules": [
+    {
+      "id": "solid",
+      "name": "Solid (HTPB/AP composite)",
+      "isp_sl_s": 240,
+      "isp_vac_s": 268,
+      "structural_fraction": 0.10,
+      "mixture_ratio_ox_to_fuel": null,
+      "densities_kg_m3": { "fuel": 1800, "oxidizer": null },
+      "max_twr_at_liftoff": 2.5,
+      "lift_capable": true,
+      "restartable": false,
+      "throttleable": false,
+      "tags": ["dense", "no-shutdown", "high-thrust"],
+      "notes": "Simple, dense, huge thrust; cannot shut down; lowest Isp of the lift-capable options",
+      "economics": {
+        "propellant_cost_usd_per_kg": { "fuel": 5.0, "oxidizer": 0.0 },
+        "hardware_cost_usd_per_kg_dry": 1200,
+        "ops_complexity": 1,
+        "toxicity": 1,
+        "reuse_suitability": 1
+      }
+    },
+    {
+      "id": "kerolox",
+      "name": "Kerosene / LOX",
+      "isp_sl_s": 300,
+      "isp_vac_s": 340,
+      "structural_fraction": 0.06,
+      "mixture_ratio_ox_to_fuel": 2.3,
+      "densities_kg_m3": { "fuel": 810, "oxidizer": 1141 },
+      "max_twr_at_liftoff": 1.8,
+      "lift_capable": true,
+      "restartable": true,
+      "throttleable": true,
+      "tags": ["cryo-ox", "dense", "workhorse"],
+      "notes": "The dense workhorse; best first-stage all-rounder",
+      "economics": {
+        "propellant_cost_usd_per_kg": { "fuel": 2.0, "oxidizer": 0.2 },
+        "hardware_cost_usd_per_kg_dry": 2500,
+        "ops_complexity": 2,
+        "toxicity": 0,
+        "reuse_suitability": 3
+      }
+    },
+    {
+      "id": "methalox",
+      "name": "Methane / LOX",
+      "isp_sl_s": 330,
+      "isp_vac_s": 365,
+      "structural_fraction": 0.07,
+      "mixture_ratio_ox_to_fuel": 3.6,
+      "densities_kg_m3": { "fuel": 423, "oxidizer": 1141 },
+      "max_twr_at_liftoff": 1.8,
+      "lift_capable": true,
+      "restartable": true,
+      "throttleable": true,
+      "tags": ["cryo-ox", "cryo-fuel", "modern", "clean"],
+      "notes": "Modern balance of Isp, density, and clean burn",
+      "economics": {
+        "propellant_cost_usd_per_kg": { "fuel": 1.0, "oxidizer": 0.2 },
+        "hardware_cost_usd_per_kg_dry": 2800,
+        "ops_complexity": 3,
+        "toxicity": 0,
+        "reuse_suitability": 4
+      }
+    },
+    {
+      "id": "hydrolox",
+      "name": "Hydrogen / LOX",
+      "isp_sl_s": 370,
+      "isp_vac_s": 450,
+      "structural_fraction": 0.11,
+      "mixture_ratio_ox_to_fuel": 6.0,
+      "densities_kg_m3": { "fuel": 71, "oxidizer": 1141 },
+      "max_twr_at_liftoff": 1.3,
+      "lift_capable": true,
+      "restartable": true,
+      "throttleable": true,
+      "tags": ["cryogenic", "high-isp", "bulky", "thrust-poor"],
+      "notes": "Highest Isp; bulky cryogenic tanks; thrust-poor at liftoff",
+      "economics": {
+        "propellant_cost_usd_per_kg": { "fuel": 6.0, "oxidizer": 0.2 },
+        "hardware_cost_usd_per_kg_dry": 4500,
+        "ops_complexity": 5,
+        "toxicity": 0,
+        "reuse_suitability": 2
+      }
+    },
+    {
+      "id": "hypergolic",
+      "name": "Hypergolic (NTO/UDMH)",
+      "isp_sl_s": 285,
+      "isp_vac_s": 320,
+      "structural_fraction": 0.08,
+      "mixture_ratio_ox_to_fuel": 2.1,
+      "densities_kg_m3": { "fuel": 790, "oxidizer": 1440 },
+      "max_twr_at_liftoff": 1.5,
+      "lift_capable": true,
+      "restartable": true,
+      "throttleable": true,
+      "tags": ["storable", "instant-ignition", "toxic", "reliable"],
+      "notes": "Storable, instant ignition, ultra-reliable; toxic (flagged in Phase 2)",
+      "economics": {
+        "propellant_cost_usd_per_kg": { "fuel": 80.0, "oxidizer": 80.0 },
+        "hardware_cost_usd_per_kg_dry": 3500,
+        "ops_complexity": 5,
+        "toxicity": 5,
+        "reuse_suitability": 1
+      }
+    },
+    {
+      "id": "coldgas",
+      "name": "Cold gas (compressed N₂/air)",
+      "isp_sl_s": 60,
+      "isp_vac_s": 70,
+      "structural_fraction": 0.35,
+      "mixture_ratio_ox_to_fuel": null,
+      "densities_kg_m3": { "fuel": 1.2, "oxidizer": null },
+      "max_twr_at_liftoff": 0.01,
+      "lift_capable": false,
+      "restartable": true,
+      "throttleable": true,
+      "tags": ["in-space-only", "teaching-trap"],
+      "notes": "Deliberate teaching trap: tank mass exceeds achievable impulse for launch",
+      "economics": {
+        "propellant_cost_usd_per_kg": { "fuel": 0.1, "oxidizer": 0.0 },
+        "hardware_cost_usd_per_kg_dry": 1000,
+        "ops_complexity": 1,
+        "toxicity": 0,
+        "reuse_suitability": 1
+      }
+    },
+    {
+      "id": "ion",
+      "name": "Ion / electric",
+      "isp_sl_s": null,
+      "isp_vac_s": 3000,
+      "structural_fraction": 0.30,
+      "mixture_ratio_ox_to_fuel": null,
+      "densities_kg_m3": { "fuel": 1400, "oxidizer": null },
+      "max_twr_at_liftoff": 0.0001,
+      "lift_capable": false,
+      "restartable": true,
+      "throttleable": true,
+      "tags": ["in-space-only", "high-isp", "milli-g"],
+      "notes": "In-space only; thrust measured in millinewtons — included to show why",
+      "economics": {
+        "propellant_cost_usd_per_kg": { "fuel": 50.0, "oxidizer": 0.0 },
+        "hardware_cost_usd_per_kg_dry": 8000,
+        "ops_complexity": 3,
+        "toxicity": 1,
+        "reuse_suitability": 2
+      }
+    }
+  ]
+}
