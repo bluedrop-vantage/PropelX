@@ -15,7 +15,12 @@ export default defineConfig(({ mode }) => {
     if (val !== undefined) define[`import.meta.env.VITE_${key}`] = JSON.stringify(val);
   }
 
+  // `VITE_BASE_PATH` lets the CI Pages job serve the app under
+  // /PropelX/. Local dev keeps `/` so assets resolve without extra config.
+  const basePath = env.VITE_BASE_PATH ?? '/';
+
   return {
+    base: basePath,
     plugins: [react()],
     server: { port: 5173 },
     define,

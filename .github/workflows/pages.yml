@@ -1,0 +1,58 @@
+name: Deploy demo to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One deploy per branch, cancel-in-progress so a rapid follow-up commit
+# doesn't leave a stale build in flight.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build web app
+        env:
+          # Repo lives at github.com/bluedrop-vantage/PropelX, so Pages serves
+          # under /PropelX/. Vite base is picked up from this env var.
+          VITE_BASE_PATH: /PropelX/
+          # Advisor proxy is not deployed with the demo; the AdvisorNarrative
+          # component surfaces a graceful "unavailable" error when the URL is
+          # unreachable. Setting an obviously-invalid URL avoids ambiguity.
+          VITE_ADVISOR_PROXY_URL: "about:blank"
+        run: pnpm --filter @propelx/web build
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
