@@ -91,8 +91,16 @@ export function LaunchAssistPanel() {
             </select>
           </label>
 
-          <label>
-            <span>Exit velocity</span>
+          <label className="slider">
+            <div className="label-row">
+              <span>Exit velocity</span>
+              <output>
+                {formatDeltaV(cfg.exit_velocity_m_s)}
+                {cfg.exit_velocity_m_s > ASSIST_EXIT_VELOCITY_AGGRESSIVE_M_S ? (
+                  <span className="aggressive"> aggressive</span>
+                ) : null}
+              </output>
+            </div>
             <input
               type="range"
               min={ASSIST_EXIT_VELOCITY_MIN_M_S}
@@ -101,16 +109,13 @@ export function LaunchAssistPanel() {
               value={cfg.exit_velocity_m_s}
               onChange={(e) => update({ exit_velocity_m_s: Number(e.target.value) })}
             />
-            <output>
-              {formatDeltaV(cfg.exit_velocity_m_s)}
-              {cfg.exit_velocity_m_s > ASSIST_EXIT_VELOCITY_AGGRESSIVE_M_S ? (
-                <span className="aggressive"> aggressive</span>
-              ) : null}
-            </output>
           </label>
 
-          <label>
-            <span>Track angle</span>
+          <label className="slider">
+            <div className="label-row">
+              <span>Track angle</span>
+              <output>{cfg.track_angle_deg}°</output>
+            </div>
             <input
               type="range"
               min={0}
@@ -119,11 +124,13 @@ export function LaunchAssistPanel() {
               value={cfg.track_angle_deg}
               onChange={(e) => update({ track_angle_deg: Number(e.target.value) })}
             />
-            <output>{cfg.track_angle_deg}°</output>
           </label>
 
-          <label>
-            <span>Base elevation</span>
+          <label className="slider">
+            <div className="label-row">
+              <span>Base elevation</span>
+              <output>{cfg.base_elevation_km.toFixed(1)} km</output>
+            </div>
             <input
               type="range"
               min={0}
@@ -132,11 +139,13 @@ export function LaunchAssistPanel() {
               value={cfg.base_elevation_km}
               onChange={(e) => update({ base_elevation_km: Number(e.target.value) })}
             />
-            <output>{cfg.base_elevation_km.toFixed(1)} km</output>
           </label>
 
-          <label>
-            <span>Peak acceleration</span>
+          <label className="slider">
+            <div className="label-row">
+              <span>Peak acceleration</span>
+              <output>{cfg.peak_acceleration_g.toFixed(1)}g</output>
+            </div>
             <input
               type="range"
               min={1}
@@ -145,11 +154,13 @@ export function LaunchAssistPanel() {
               value={cfg.peak_acceleration_g}
               onChange={(e) => update({ peak_acceleration_g: Number(e.target.value) })}
             />
-            <output>{cfg.peak_acceleration_g.toFixed(1)}g</output>
           </label>
 
-          <label>
-            <span>Drive efficiency</span>
+          <label className="slider">
+            <div className="label-row">
+              <span>Drive efficiency</span>
+              <output>{(cfg.drive_efficiency * 100).toFixed(0)}%</output>
+            </div>
             <input
               type="range"
               min={0.5}
@@ -158,7 +169,6 @@ export function LaunchAssistPanel() {
               value={cfg.drive_efficiency}
               onChange={(e) => update({ drive_efficiency: Number(e.target.value) })}
             />
-            <output>{(cfg.drive_efficiency * 100).toFixed(0)}%</output>
           </label>
 
           <label className="checkbox">

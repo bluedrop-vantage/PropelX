@@ -81,6 +81,20 @@ export interface StackEntry {
   // (PLAN §6 Q2 "technology level slider"). Undefined = use archetype default.
   // Bounds enforced by the UI: [0.02, 0.30].
   structural_fraction_override?: number;
+  // Per-stage override of the archetype's specific impulse (s). Applies to
+  // whichever mode the stage runs in (stage-1 blend or vacuum). Undefined
+  // means the engine falls back to the archetype's Isp values.
+  // Bounds enforced by the UI: [60, 8000] s (cold gas ≈ 60, ion ≈ 8000).
+  isp_override_s?: number;
+  // Per-stage override of the propellant mixture ratio (oxidiser : fuel by
+  // mass). Only affects the fuel/oxidiser split and tank-volume display —
+  // total propellant mass is unchanged. Ignored on solid / cold-gas / ion
+  // stages (no oxidiser). Bounds enforced by the UI: [0.5, 10].
+  mixture_ratio_override?: number;
+  // Per-stage override of the archetype's max liftoff/ignition TWR. Models
+  // "what engine cluster can we mount on this stage". Feeds V-4/V-6 and
+  // the stage's twr_ignition readout. Bounds: [0.001, 5].
+  max_twr_override?: number;
 }
 
 export type AllocationMode = 'auto' | 'manual';

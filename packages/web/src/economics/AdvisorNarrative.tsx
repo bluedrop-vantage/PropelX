@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDesignStore } from '../state/designStore.js';
 import { useEconomicsStore } from '../state/economicsStore.js';
 import { HelpTip } from '../help/HelpTip.js';
@@ -16,11 +16,18 @@ interface AdvisorResponse {
 export function AdvisorNarrative() {
   const design = useDesignStore((s) => s.design);
   const solveResult = useDesignStore((s) => s.solveResult);
+  const resetToken = useDesignStore((s) => s.resetToken);
   const cost = useEconomicsStore((s) => s.cost);
   const suggestions = useEconomicsStore((s) => s.suggestions);
   const [state, setState] = useState<
     { kind: 'idle' } | { kind: 'loading' } | { kind: 'ok'; data: AdvisorResponse } | { kind: 'error'; message: string }
   >({ kind: 'idle' });
+
+  // Clear any displayed narrative on a design reset. Component-local state
+  // wouldn't otherwise be reachable by the store's resetDesign action.
+  useEffect(() => {
+    setState({ kind: 'idle' });
+  }, [resetToken]);
 
   const request = async () => {
     setState({ kind: 'loading' });

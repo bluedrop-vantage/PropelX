@@ -41,7 +41,11 @@ function ispModeForIndex(
 }
 
 function stackModulesFromEntries(
-  entries: Array<{ module_id: ModuleId; structural_fraction_override?: number }>,
+  entries: Array<{
+    module_id: ModuleId;
+    structural_fraction_override?: number;
+    isp_override_s?: number;
+  }>,
   catalog: Catalog,
   boostersActive: boolean,
   isInSpace: boolean,
@@ -53,6 +57,9 @@ function stackModulesFromEntries(
     };
     if (s.structural_fraction_override !== undefined) {
       sm.structuralFractionOverride = s.structural_fraction_override;
+    }
+    if (s.isp_override_s !== undefined) {
+      sm.ispOverride_s = s.isp_override_s;
     }
     return sm;
   });
@@ -166,15 +173,19 @@ export function solve(design: DesignDoc, catalog: Catalog): SolveResult {
     const mod = catalog.byId(entry.module_id);
     const mode = ispModeForIndex(i, expanded.boostersActive, isInSpace);
     // Booster virtual entry has no user-visible override; only design.stack
-    // entries carry structural_fraction_override.
+    // entries carry structural_fraction / isp overrides.
     const isVirtualBooster = expanded.boostersActive && i === 0;
     const userEntry = isVirtualBooster ? null : design.stack[expanded.boostersActive ? i - 1 : i];
     const epsOverride = userEntry?.structural_fraction_override;
-    const s = sizeStage(mod, allocation_m_s[i]!, mAbove, mode, epsOverride);
+    const ispOverride = userEntry?.isp_override_s;
+    const mixtureRatioOverride = userEntry?.mixture_ratio_override;
+    const maxTwrOverride = userEntry?.max_twr_override;
+    const s = sizeStage(mod, allocation_m_s[i]!, mAbove, mode, epsOverride, ispOverride);
     // For the booster virtual entry, sizing gives mp/ms for the *total* booster
     // parallel stage (all N boosters combined). We keep it in sizedStages for
     // validation but split it back into per-booster figures for the UI.
     const positionForValidation = expanded.boostersActive && i === 0 ? 0 : entry.position;
+    const effectiveMaxTwr = maxTwrOverride ?? mod.max_twr_at_liftoff;
     const sized: SizedStageForValidation = {
       position: positionForValidation,
       module: mod,
@@ -182,6 +193,7 @@ export function solve(design: DesignDoc, catalog: Catalog): SolveResult {
       ms_kg: s.ms_kg,
       massAboveIncl_kg: s.m_above_below_kg,
       feasible: s.feasible,
+      effectiveMaxTwr,
     };
     if (s.reason !== undefined) sized.feasibilityReason = s.reason;
     sizedStages[i] = sized;
@@ -189,11 +201,14 @@ export function solve(design: DesignDoc, catalog: Catalog): SolveResult {
     // Only include user-visible stages in the results array; the booster
     // virtual entry is surfaced via SolveResult.booster instead.
     if (!(expanded.boostersActive && i === 0)) {
-      const fuel_kg =
+      // Mixture ratio: user override wins over the archetype default.
+      // Ignored on solid / cold-gas / ion (no oxidiser).
+      const mr =
         mod.mixture_ratio_ox_to_fuel !== null
-          ? s.mp_kg / (1 + mod.mixture_ratio_ox_to_fuel)
-          : s.mp_kg;
-      const oxidizer_kg = mod.mixture_ratio_ox_to_fuel !== null ? s.mp_kg - fuel_kg : 0;
+          ? (mixtureRatioOverride ?? mod.mixture_ratio_ox_to_fuel)
+          : null;
+      const fuel_kg = mr !== null ? s.mp_kg / (1 + mr) : s.mp_kg;
+      const oxidizer_kg = mr !== null ? s.mp_kg - fuel_kg : 0;
       perStageForOutput.unshift({
         position: entry.position,
         delta_v_m_s: allocation_m_s[i]!,
@@ -204,7 +219,7 @@ export function solve(design: DesignDoc, catalog: Catalog): SolveResult {
         oxidizer_kg,
         dry_kg: s.ms_kg,
         tank_volume_m3: tankVolumeM3(mod, fuel_kg, oxidizer_kg),
-        twr_ignition: mod.max_twr_at_liftoff,
+        twr_ignition: effectiveMaxTwr,
       });
     }
     mAbove = s.m_above_below_kg;
@@ -249,9 +264,11 @@ export function solve(design: DesignDoc, catalog: Catalog): SolveResult {
       dry_kg_each: perBoosterDry,
       dry_kg_total: virtualSized.ms_kg,
       effective_parallel_isp_s: effIsp,
+      // Composite TWR uses effective values so a per-stage max_twr_override
+      // on the core stage lifts the composite ceiling too.
       composite_liftoff_max_twr: Math.max(
-        expanded.boosterModule.max_twr_at_liftoff,
-        coreSized.module.max_twr_at_liftoff,
+        virtualSized.effectiveMaxTwr ?? expanded.boosterModule.max_twr_at_liftoff,
+        coreSized.effectiveMaxTwr ?? coreSized.module.max_twr_at_liftoff,
       ),
     };
   }

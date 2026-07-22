@@ -82,13 +82,27 @@ test.describe('Q2 tech-level slider', () => {
     // Open the drawer for Stage 1.
     await page.getByRole('button', { name: /details for stage 1/i }).click();
     await expect(page.locator('.stage-drawer')).toBeVisible();
-    // Tech-level slider is visible and has the expected ε bounds.
-    await expect(page.locator('.tech-level-slider')).toBeVisible();
-    const slider = page.locator('.tech-level-slider input[type="range"]');
-    await expect(slider).toBeVisible();
+    // Tech-level (ε) slider is scoped by its aria-label to disambiguate
+    // from the sibling Isp slider that shares the same class.
+    const epsSection = page.getByRole('region', { name: /Structural fraction/i });
+    await expect(epsSection).toBeVisible();
+    const slider = epsSection.locator('input[type="range"]');
     await expect(slider).toHaveAttribute('min', '0.02');
     await expect(slider).toHaveAttribute('max', '0.3');
     // Label shows the archetype default; methalox ε = 0.07 per the catalog.
-    await expect(page.locator('.tech-level-slider label')).toContainText(/ε = 0.070/);
+    await expect(epsSection.locator('label')).toContainText(/ε = 0.070/);
+  });
+
+  test('the drawer also exposes an Isp override slider', async ({ page }) => {
+    await fresh(page);
+    await page.getByRole('button', { name: /insert methane \/ lox at top of stack/i }).click();
+    await page.getByRole('button', { name: /details for stage 1/i }).click();
+    const ispSection = page.getByRole('region', { name: /Specific impulse/i });
+    await expect(ispSection).toBeVisible();
+    const slider = ispSection.locator('input[type="range"]');
+    await expect(slider).toHaveAttribute('min', '60');
+    await expect(slider).toHaveAttribute('max', '8000');
+    // Methalox vacuum Isp = 365 s per the catalog.
+    await expect(ispSection.locator('label')).toContainText(/Isp = 365 s/);
   });
 });

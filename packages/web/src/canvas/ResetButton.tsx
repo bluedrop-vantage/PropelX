@@ -5,10 +5,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useDesignStore } from '../state/designStore.js';
+import { useChallengesStore } from '../state/challengesStore.js';
 
 export function ResetButton() {
   const reset = useDesignStore((s) => s.resetDesign);
+  const clearChallenge = useChallengesStore((s) => s.setActiveChallenge);
   const stackLen = useDesignStore((s) => s.design.stack.length);
+  const activeChallenge = useChallengesStore((s) => s.activeChallengeId);
   const [armed, setArmed] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -27,11 +30,14 @@ export function ResetButton() {
     }
     if (timerRef.current) clearTimeout(timerRef.current);
     reset();
+    clearChallenge(null);
     setArmed(false);
   };
 
-  // Nothing to reset when the design is already empty.
-  const emptyAlready = stackLen === 0;
+  // Nothing to reset when the design is already empty AND no challenge is
+  // active — reset still makes sense when a challenge is running against
+  // an empty stack.
+  const emptyAlready = stackLen === 0 && activeChallenge === null;
 
   return (
     <button

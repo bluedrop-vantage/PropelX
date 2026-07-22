@@ -39,6 +39,9 @@ export interface SizedStageForValidation {
   massAboveIncl_kg: number; // mass sitting on top of + including this stage
   feasible: boolean;
   feasibilityReason?: string;
+  // The max TWR the stage can actually deliver — archetype default unless
+  // the user set a per-stage override in the drawer. V-4/V-6 use this.
+  effectiveMaxTwr?: number;
 }
 
 export interface PreSizingContext {
@@ -259,8 +262,9 @@ export function ruleV4(ctx: PostSizingContext): Array<Violation | Warning> {
   const s1 = ctx.stages[0];
   if (!s1) return [];
   const mod = s1.module;
+  const effectiveMaxTwr = s1.effectiveMaxTwr ?? mod.max_twr_at_liftoff;
   const out: Array<Violation | Warning> = [];
-  if (mod.max_twr_at_liftoff < LIFTOFF_TWR_MIN) {
+  if (effectiveMaxTwr < LIFTOFF_TWR_MIN) {
     out.push({
       rule: 'V-4',
       stage: 1,
@@ -268,9 +272,11 @@ export function ruleV4(ctx: PostSizingContext): Array<Violation | Warning> {
     });
     return out;
   }
-  // Hydrolox first-stage warning (spec §6.4).
+  // Hydrolox first-stage warning (spec §6.4). Skip when the user has
+  // manually raised the max TWR override past the "thrust-poor" band.
   const hasBoosters = (ctx.design.stack[0]?.boosters?.count ?? 0) > 0;
-  if (mod.id === 'hydrolox' && !hasBoosters) {
+  const userOverrode = ctx.design.stack[0]?.max_twr_override !== undefined;
+  if (mod.id === 'hydrolox' && !hasBoosters && !userOverrode) {
     out.push({
       rule: 'V-4',
       stage: 1,
@@ -311,11 +317,13 @@ export function ruleV6(ctx: PostSizingContext): Array<Violation | Warning> {
   const firstUpperIdx = ctx.boostersActive ? 2 : 1;
   for (let i = firstUpperIdx; i < ctx.stages.length; i++) {
     const s = ctx.stages[i]!;
-    const maxThrust_N = s.module.max_twr_at_liftoff * s.massAboveIncl_kg * G0;
+    const effectiveMaxTwr = s.effectiveMaxTwr ?? s.module.max_twr_at_liftoff;
+    const maxThrust_N = effectiveMaxTwr * s.massAboveIncl_kg * G0;
     const twr = maxThrust_N / (s.massAboveIncl_kg * G0);
-    // Simplifies to max_twr_at_liftoff — realistically upper-stage engines
+    // Simplifies to effectiveMaxTwr — realistically upper-stage engines
     // are lower thrust than first-stage clusters, but archetypes in this
-    // catalog capture that (hydrolox 1.3, ion 1e-4, etc.).
+    // catalog capture that (hydrolox 1.3, ion 1e-4, etc.). Per-stage
+    // max_twr_override lets the user model bespoke engine clusters.
     if (twr < UPPER_STAGE_TWR_FAIL) {
       out.push({
         rule: 'V-6',

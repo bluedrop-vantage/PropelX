@@ -24,6 +24,9 @@ export interface StackModule {
   // Optional per-stage structural-fraction override (PLAN §6 Q2 tech-level
   // slider). Falls back to the archetype's `structural_fraction`.
   structuralFractionOverride?: number;
+  // Optional per-stage Isp override (s). Wins over the archetype+mode blend
+  // regardless of mode. Applies to both allocator scoring and final sizing.
+  ispOverride_s?: number;
 }
 
 export interface AllocationSuccess {
@@ -56,9 +59,9 @@ export function glowForAllocation(
   const results = new Array<{ mp_kg: number; ms_kg: number }>(stack.length);
   // Top-down: index N-1 down to 0.
   for (let i = stack.length - 1; i >= 0; i--) {
-    const { module, ispMode, structuralFractionOverride } = stack[i]!;
+    const { module, ispMode, structuralFractionOverride, ispOverride_s } = stack[i]!;
     const dv = alloc_m_s[i]!;
-    const s = sizeStage(module, dv, mAbove, ispMode, structuralFractionOverride);
+    const s = sizeStage(module, dv, mAbove, ispMode, structuralFractionOverride, ispOverride_s);
     if (!s.feasible) {
       return { glow_kg: INFEASIBLE_PENALTY, stagesBottomUp: results };
     }
@@ -82,8 +85,9 @@ function softmaxWithPin(z: number[]): number[] {
  * velocity Ve. Spec §6.3 explicitly calls for this Saturn-V heuristic.
  */
 function initialLogits(stack: StackModule[]): number[] {
-  const veList = stack.map(({ module, ispMode }) => {
-    // Use the mode-appropriate Isp (matches sizing.ts:ispForMode).
+  const veList = stack.map(({ module, ispMode, ispOverride_s }) => {
+    // Per-stage Isp override wins; else use the mode-appropriate Isp.
+    if (ispOverride_s !== undefined) return ispOverride_s * 9.80665;
     const sl = module.isp_sl_s ?? module.isp_vac_s;
     const isp = ispMode === 'stage1' ? 0.85 * sl + 0.15 * module.isp_vac_s : module.isp_vac_s;
     return isp * 9.80665;

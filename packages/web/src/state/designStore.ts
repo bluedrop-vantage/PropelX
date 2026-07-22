@@ -38,6 +38,10 @@ export interface DesignState {
   catalog: Catalog;
   design: DesignDoc;
   solveResult: SolveResult;
+  // Monotonically-increasing counter bumped by resetDesign(). Components with
+  // local (non-store) state — e.g. AdvisorNarrative's LLM response — subscribe
+  // to this and clear themselves when it changes.
+  resetToken: number;
 
   // mission actions
   setMissionType(type: MissionType): void;
@@ -55,6 +59,13 @@ export interface DesignState {
 
   // tech-level slider (PLAN §6 Q2). Pass undefined to reset to archetype default.
   setStageStructuralFraction(index: number, eps: number | undefined): void;
+  // Per-stage Isp override (s). Pass undefined to reset to archetype default.
+  setStageIsp(index: number, isp_s: number | undefined): void;
+  // Per-stage propellant mixture-ratio override (ox : fuel by mass). Pass
+  // undefined to reset to archetype default.
+  setStageMixtureRatio(index: number, ratio: number | undefined): void;
+  // Per-stage max-TWR override. Pass undefined to reset to archetype default.
+  setStageMaxTwr(index: number, twr: number | undefined): void;
 
   // Electro-magnetic launch assist (add-on).
   setLaunchAssistEnabled(enabled: boolean): void;
@@ -90,6 +101,7 @@ export const useDesignStore = create<DesignState>()(
       design: initial,
       solveResult: recompute(initial),
       drawerStageIndex: null,
+      resetToken: 0,
 
       setMissionType(type) {
         const design = { ...get().design };
@@ -221,6 +233,51 @@ export const useDesignStore = create<DesignState>()(
         set({ design: next, solveResult: recompute(next) });
       },
 
+      setStageIsp(index, isp_s) {
+        const { design } = get();
+        if (index < 0 || index >= design.stack.length) return;
+        const stack = design.stack.slice();
+        const entry = { ...stack[index]! };
+        if (isp_s === undefined) {
+          delete entry.isp_override_s;
+        } else {
+          entry.isp_override_s = isp_s;
+        }
+        stack[index] = entry;
+        const next: DesignDoc = { ...design, stack };
+        set({ design: next, solveResult: recompute(next) });
+      },
+
+      setStageMixtureRatio(index, ratio) {
+        const { design } = get();
+        if (index < 0 || index >= design.stack.length) return;
+        const stack = design.stack.slice();
+        const entry = { ...stack[index]! };
+        if (ratio === undefined) {
+          delete entry.mixture_ratio_override;
+        } else {
+          entry.mixture_ratio_override = ratio;
+        }
+        stack[index] = entry;
+        const next: DesignDoc = { ...design, stack };
+        set({ design: next, solveResult: recompute(next) });
+      },
+
+      setStageMaxTwr(index, twr) {
+        const { design } = get();
+        if (index < 0 || index >= design.stack.length) return;
+        const stack = design.stack.slice();
+        const entry = { ...stack[index]! };
+        if (twr === undefined) {
+          delete entry.max_twr_override;
+        } else {
+          entry.max_twr_override = twr;
+        }
+        stack[index] = entry;
+        const next: DesignDoc = { ...design, stack };
+        set({ design: next, solveResult: recompute(next) });
+      },
+
       setAllocationMode(mode) {
         const design = { ...get().design, allocation_mode: mode };
         set({ design, solveResult: recompute(design) });
@@ -257,6 +314,7 @@ export const useDesignStore = create<DesignState>()(
           design: fresh,
           solveResult: recompute(fresh),
           drawerStageIndex: null,
+          resetToken: get().resetToken + 1,
         });
       },
     };

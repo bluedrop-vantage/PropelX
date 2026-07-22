@@ -189,6 +189,72 @@ h3 { font-size: 13px; margin: 0 0 6px; color: var(--muted); text-transform: uppe
 }
 .reset-btn.armed:hover { background: rgba(226, 76, 75, 0.25); }
 
+/* Results-panel header with the Explain button */
+.results-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.results-header h2 { margin: 0; }
+.explain-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--panel-2); border: 1px solid var(--border);
+  color: var(--muted); font-size: 11px; padding: 4px 10px; border-radius: 6px;
+  cursor: pointer;
+}
+.explain-btn:hover:not(:disabled) { color: var(--text); border-color: var(--accent); }
+.explain-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.explain-btn .explain-icon {
+  font-family: 'Times New Roman', Georgia, serif;
+  font-style: italic; font-weight: 700; font-size: 13px; color: var(--accent);
+}
+
+/* Explain modal */
+.modal.explain-modal {
+  max-width: 780px;
+  width: min(780px, calc(100vw - 32px));
+}
+.modal.explain-modal section { margin: 14px 0; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.modal.explain-modal section:last-of-type { border-bottom: none; }
+.modal.explain-modal h3 { font-size: 13px; color: var(--text); text-transform: none; letter-spacing: 0; margin: 0 0 8px; }
+.modal.explain-modal h4 { font-size: 12px; color: var(--accent); margin: 12px 0 6px; text-transform: none; letter-spacing: 0; }
+.modal.explain-modal .hint { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.eq-row {
+  display: grid; grid-template-columns: 260px 1fr; gap: 8px 12px;
+  padding: 3px 0; font-size: 12px;
+}
+.eq-row .eq-label { color: var(--muted); }
+.eq-row code {
+  font-family: ui-monospace, SFMono-Regular, monospace; font-size: 12px;
+  background: var(--panel-2); padding: 2px 6px; border-radius: 3px;
+  color: var(--text); overflow-wrap: anywhere;
+}
+.eq-row code b { color: var(--accent); }
+.eq-row.summary code { background: rgba(106, 169, 79, 0.12); border: 1px solid var(--accent-dark); }
+.eq-row.fail code { background: rgba(226, 76, 75, 0.12); border: 1px solid var(--red); }
+.stage-math {
+  background: var(--panel-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; margin: 8px 0;
+}
+.stage-math.infeasible { border-color: var(--red); background: rgba(226, 76, 75, 0.06); }
+.feasibility-note {
+  margin-top: 8px; padding: 8px; background: rgba(226, 76, 75, 0.12);
+  border-left: 3px solid var(--red); border-radius: 4px; font-size: 12px;
+}
+.alloc-strip { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.alloc-chip {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  background: var(--panel-2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 4px 8px; font-size: 11px;
+}
+.alloc-chip .alloc-label { color: var(--muted); font-weight: 600; }
+.alloc-chip .alloc-value { font-family: ui-monospace, SFMono-Regular, monospace; color: var(--text); font-weight: 600; }
+.alloc-chip .alloc-unit { color: var(--muted); font-size: 10px; }
+.fail-line { padding: 8px; background: rgba(226, 76, 75, 0.12); border-left: 3px solid var(--red); border-radius: 4px; font-size: 12px; }
+@media (max-width: 640px) {
+  .eq-row { grid-template-columns: 1fr; gap: 2px; }
+  .eq-row .eq-label { font-size: 11px; }
+}
+
 .nozzle-cluster { margin-top: -2px; line-height: 0; }
 .nozzle-cluster svg { display: block; }
 .launch-pad {
@@ -492,19 +558,26 @@ h3 { font-size: 13px; margin: 0 0 6px; color: var(--muted); text-transform: uppe
 }
 .launch-assist-panel .switch { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; }
 .launch-assist-panel .panel-hint { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
-.assist-body { display: flex; flex-direction: column; gap: 6px; }
-.assist-body label {
-  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 8px;
-  font-size: 11px; color: var(--muted);
+.assist-body { display: flex; flex-direction: column; gap: 8px; }
+.assist-body label { font-size: 11px; color: var(--muted); display: block; }
+.assist-body label.slider { display: flex; flex-direction: column; gap: 4px; }
+.assist-body label .label-row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
 }
-.assist-body label input[type="range"] { grid-column: 1 / span 2; }
-.assist-body label output { text-align: right; color: var(--text); font-family: ui-monospace, SFMono-Regular, monospace; }
-.assist-body label output .aggressive { color: var(--amber); text-transform: uppercase; letter-spacing: 0.05em; font-size: 9px; margin-left: 4px; }
+.assist-body label .label-row output {
+  color: var(--text); font-family: ui-monospace, SFMono-Regular, monospace;
+  text-align: right; white-space: nowrap;
+}
+.assist-body label .label-row output .aggressive {
+  color: var(--amber); text-transform: uppercase; letter-spacing: 0.05em;
+  font-size: 9px; margin-left: 4px;
+}
+.assist-body label input[type="range"] { width: 100%; }
 .assist-body select {
   width: 100%; background: var(--panel); color: var(--text);
   border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; font: inherit;
 }
-.assist-body label.checkbox { grid-template-columns: auto 1fr; color: var(--text); }
+.assist-body label.checkbox { display: flex; align-items: center; gap: 6px; color: var(--text); }
 .assist-readouts {
   display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin: 6px 0 0;
   padding: 8px; background: var(--panel); border-radius: 6px;
@@ -620,10 +693,13 @@ h3 { font-size: 13px; margin: 0 0 6px; color: var(--muted); text-transform: uppe
 .help-btn[aria-expanded="true"] { background: var(--accent-dark); color: white; border-color: var(--accent); }
 
 .help-popover {
-  position: absolute; top: calc(100% + 6px); left: 0; z-index: 45;
+  /* Portalled into document.body — coordinates set inline from JS so we
+     escape any ancestor's overflow clipping. */
+  position: fixed;
+  z-index: 60;
   min-width: 260px; max-width: 320px;
   background: var(--panel); border: 1px solid var(--border);
-  border-radius: 8px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border-radius: 8px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
   color: var(--text);
 }
 .help-popover header {
@@ -642,14 +718,7 @@ h3 { font-size: 13px; margin: 0 0 6px; color: var(--muted); text-transform: uppe
 .help-body strong { color: var(--text); }
 .help-body em { color: var(--muted); font-style: italic; }
 
-/* Push popover to align with right edge on right-hand column, so it doesn't
-   overflow the viewport. */
-.right-column .help-popover { right: 0; left: auto; }
-.results-panel .help-popover,
-.economics-tab .help-popover,
-.challenges-panel .help-popover,
-.comparison-tray .help-popover,
-.mission-panel .help-popover { right: 0; left: auto; }
+/* Right-column popover alignment is now computed in JS (HelpTip.tsx). */
 
 /* Header "How to use" button vs "About" button */
 .how-to-btn { background: var(--accent-dark); color: white; border-color: var(--accent); }

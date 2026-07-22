@@ -59,6 +59,23 @@ export const STAGE_COUNT_MAX = 5;
 export const STRUCTURAL_FRACTION_MIN = 0.02;
 export const STRUCTURAL_FRACTION_MAX = 0.30;
 
+// Per-stage Isp override bounds (s). Covers cold-gas at the low end (~60 s)
+// through experimental ion at the high end (~8 000 s).
+export const ISP_OVERRIDE_MIN_S = 60;
+export const ISP_OVERRIDE_MAX_S = 8_000;
+
+// Per-stage mixture-ratio override bounds (oxidiser : fuel by mass).
+// Real chemistry spans ~1.9 (hypergolic) to ~6.0 (hydrolox); wider bounds
+// let engineers explore off-nominal ratios without breaking sizing.
+export const MIXTURE_RATIO_OVERRIDE_MIN = 0.5;
+export const MIXTURE_RATIO_OVERRIDE_MAX = 10;
+
+// Per-stage max-TWR override bounds. Archetype defaults span ~1e-4 (ion) to
+// 2.5 (solid). The band below covers hypothetical engine clusters up to
+// the structural limit of the vehicle.
+export const MAX_TWR_OVERRIDE_MIN = 0.001;
+export const MAX_TWR_OVERRIDE_MAX = 5;
+
 // ---- Launch-assist constants (Electro-Magnetic Launch Assist doc) -----
 
 // Sea-level ISA air density.

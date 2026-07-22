@@ -45,8 +45,12 @@ export function sizeStage(
   mAbove_kg: number,
   mode: IspMode,
   structuralFractionOverride?: number,
+  ispOverride_s?: number,
 ): StageSizing {
-  const isp = ispForMode(mod, mode);
+  // Per-stage Isp override wins over the archetype+mode blend. Applies in
+  // either mode (stage-1 blend or vacuum) since a real engine's rating is
+  // set by hardware, not by which slot on the stack it sits in.
+  const isp = ispOverride_s ?? ispForMode(mod, mode);
   const ve = isp * G0;
   const eps = structuralFractionOverride ?? mod.structural_fraction;
   const k = eps / (1 - eps);
