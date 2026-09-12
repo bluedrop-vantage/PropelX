@@ -1,7 +1,7 @@
 # PropelX — Implementation Plan
 
 **Product:** PropelX (rocket stage builder)
-**White-label owner:** BlueDrop, LLC
+**White-label owner:** Salus-U Inc
 **Companion spec:** [Product Specification — Rocket Stage B.md](Product%20Specification%20—%20Rocket%20Stage%20B.md)
 **Plan version:** 0.1 (draft for review)
 **Date:** 2026-07-20
