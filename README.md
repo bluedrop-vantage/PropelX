@@ -1,6 +1,6 @@
 # PropelX
 
-Rocket stage builder by BlueDrop, LLC. Browser-based interactive sandbox that lets a user assemble a multi-stage launch vehicle, specify a payload and destination, and see whether the design can physically reach orbit.
+Rocket stage builder by Salus-U research labs. Browser-based interactive sandbox that lets a user assemble a multi-stage launch vehicle, specify a payload and destination, and see whether the design can physically reach orbit.
 
 See [Product Specification](Product%20Specification%20—%20Rocket%20Stage%20B.md) and [PLAN.md](PLAN.md).
 
